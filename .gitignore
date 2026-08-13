@@ -1,0 +1,5 @@
+venv/
+.env
+coffee_lora_model/
+__pycache__/
+*.pyc
