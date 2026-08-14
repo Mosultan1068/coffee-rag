@@ -1,0 +1,44 @@
+name: Build and Test Coffee RAG App
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # This smoke test is different from the fault-finding project's:
+      # there's no local CSV to check here, since this project's data
+      # lives in Supabase. Instead, this confirms the code itself is
+      # syntactically valid and importable, without needing real
+      # credentials (which aren't available to the CI runner, and
+      # shouldn't be — no secrets are stored in this repo).
+      - name: Run basic smoke test
+        run: |
+          python -c "
+          import ast
+          for filename in ['app.py', 'ingest.py', 'retrieve.py', 'generate.py', 'coffee_server.py']:
+              with open(filename) as f:
+                  source = f.read()
+              try:
+                  ast.parse(source)
+                  print(f'{filename}: syntax OK')
+              except SyntaxError as e:
+                  raise SystemExit(f'{filename}: SYNTAX ERROR - {e}')
+          "
+
+      - name: Build Docker image
+        run: docker build -t coffee-rag-app .

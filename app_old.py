@@ -213,4 +213,4 @@ with gr.Blocks(title="Coffee Assistant") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(inbrowser=True, server_name="0.0.0.0", server_port=7860)
+    demo.launch(inbrowser=True)
